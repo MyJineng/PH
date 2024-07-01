@@ -3,6 +3,7 @@ import pandas as pd
 import requests, os
 from datetime import datetime
 import matplotlib.pyplot as plt
+import time
 
 # Create Datetime String for Record Keeping
 CDT = datetime.now().strftime("%Y-%m-%d")
@@ -34,6 +35,8 @@ weightl = []
 heightl = []
 # Loop through names to make urls to parse weight and height data
 for x in snames:
+    if x == 'rose-monroe-your-fav':
+        x = 'rose-monroe'
     try:
         # Tries 1st format and appends data
         url = f'https://www.pornhub.com/pornstar/{x}'
@@ -41,8 +44,8 @@ for x in snames:
         soup = BeautifulSoup(site.text, 'html.parser')
         weight = [i.text for i in soup.find('span', {"itemprop": "weight"})]
         height = [i.text for i in soup.find('span', {"itemprop": "height"})]
-        weightl.append(weight)
-        heightl.append(height)
+        weightl.append(weight[0])
+        heightl.append(height[0])
     except:
         try:
             # Tries 2nd format and appends data
@@ -101,7 +104,6 @@ for x in snames:
                     height = 'NaN'
                     heightl.append(height)
                     print(f'{x} has no weight or height data!')
-
 # Sets up DataFrame
 sdf = pd.DataFrame({'Name': pd.Series(snames), 'Height': pd.Series(heightl),
                     'Weight': pd.Series(weightl)})
@@ -121,10 +123,10 @@ avg_height = sdf["Height"].mean()
 # The Important Stats Lol!
 print(f'Avg Pornstar Height: {avg_height.round(2)} ft, Avg Pornstar Weight: {avg_weight.round(2)} lbs')
 print(sdf.describe().round(2))
-print(sdf)
+print(sdf.head(10))
 
 # Save as a csv
-sdf.to_csv((f'PH{sCDT}.csv'), encoding='utf-8', index=False)
+sdf.to_csv((f'PH{eth}{sCDT}.csv'), encoding='utf-8', index=False)
 
 # Bar Plot for Fun!
 plot = sdf['Height'].plot(kind="bar", figsize=(30, 5))
